@@ -1,1 +1,1 @@
-# elixir-pendulum-app
+# Elixir Pendulum App
