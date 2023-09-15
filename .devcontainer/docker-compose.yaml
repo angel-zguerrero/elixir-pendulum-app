@@ -1,0 +1,44 @@
+version: "3"
+
+volumes:
+  pendulum-app-redis:
+  pendulum-app-rabbitmq:
+  
+networks:
+  pleasant-river-net:
+    name: "pleasant-river-net"
+    external: false
+services:
+  pendulum-app-environment:
+    build:
+      context: .
+      dockerfile: ./Dockerfile   
+    volumes:
+      - ../:/pendulum-app-environment
+    networks:
+      - pleasant-river-net
+  pendulum-app-redis:
+    image: redis
+    volumes:
+      - pendulum-app-redis:/data
+    expose:
+      - 6379
+    ports:
+      - 6379:6379      
+    restart: unless-stopped
+    networks:
+      - pleasant-river-net
+  pendulum-app-rabbitmq:
+    image: azguerrero/rabbitmq-deduplication
+    container_name: pendulum-app-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin 
+    volumes:
+      - pendulum-app-rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    networks:
+      - pleasant-river-net

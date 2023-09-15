@@ -1,0 +1,13 @@
+{
+  "name": "Pendulum Dev Container",
+  "dockerComposeFile": "./docker-compose.yaml",
+  "workspaceFolder": "/pendulum-app-environment",
+  "service": "pendulum-app-environment",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/sh"
+  },
+  "extensions": [
+    "jakebecker.elixir-ls"
+  ],
+  "forwardPorts": []
+}
