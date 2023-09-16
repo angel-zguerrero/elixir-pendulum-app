@@ -24,7 +24,7 @@ services:
     expose:
       - 6379
     ports:
-      - 6379:6379      
+      - 6380:6379      
     restart: unless-stopped
     networks:
       - pleasant-river-net
@@ -32,8 +32,8 @@ services:
     image: azguerrero/rabbitmq-deduplication
     container_name: pendulum-app-rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5673:5672"
+      - "15673:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin 

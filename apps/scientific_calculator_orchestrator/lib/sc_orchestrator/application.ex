@@ -8,12 +8,9 @@ defmodule SCOrchestrator.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: SCOrchestrator.Worker.start_link(arg)
-      # {SCOrchestrator.Worker, arg}
+      {SSOrchestratorWorkers.ScientistOperatorWorker, [strategy: :one_for_rest]},
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: SCOrchestrator.Supervisor]
     Supervisor.start_link(children, opts)
   end
