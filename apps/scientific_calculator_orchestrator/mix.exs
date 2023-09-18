@@ -29,6 +29,7 @@ defmodule SCOrchestrator.MixProject do
     [
       {:broadway_rabbitmq, "~> 0.8.0"},
       {:scientific_calculator_pubsub, in_umbrella: true},
+      {:scientific_calculator_executor, in_umbrella: true},
     ]
   end
 end

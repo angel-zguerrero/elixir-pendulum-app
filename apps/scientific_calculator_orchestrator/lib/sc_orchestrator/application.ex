@@ -8,8 +8,8 @@ defmodule SCOrchestrator.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {SCOrchestrator.ScientistOperatorWorker, [strategy: :one_for_rest]},
-      {SCOrchestrator.ExecutorRegistryListener, strategy: :one_for_one}
+      {SCOrchestrator.ScientistOperatorWorker, [ strategy: :one_for_rest]},
+      {SCOrchestrator.ExecutorRegistryListener, [strategy: :one_for_one]}
     ]
 
     opts = [strategy: :one_for_one, name: SCOrchestrator.Supervisor]
