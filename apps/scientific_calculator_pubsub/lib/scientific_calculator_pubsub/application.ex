@@ -22,7 +22,7 @@ defmodule ScientificCalculatorPubsub.Application do
     children = [
       {Phoenix.PubSub,
        name: ScientificCalculatorPubsub.Service,
-       adapter: Phoenix.PubSub.Redis, host: redis_host, port: redis_port, node_name: System.get_env("NODE")}
+       adapter: Phoenix.PubSub.Redis, host: redis_host, port: redis_port, node_name: "#{node()}"}
     ]
 
     opts = [strategy: :one_for_one, name: ScientificCalculatorPubsub.Supervisor]
