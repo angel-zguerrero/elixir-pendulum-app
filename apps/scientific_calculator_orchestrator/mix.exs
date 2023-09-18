@@ -19,6 +19,7 @@ defmodule SCOrchestrator.MixProject do
   def application do
     [
       extra_applications: [:logger],
+      env: [executors_routing_table: %{}],
       mod: {SCOrchestrator.Application, []}
     ]
   end

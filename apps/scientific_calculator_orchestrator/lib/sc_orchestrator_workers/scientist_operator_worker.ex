@@ -1,4 +1,4 @@
-defmodule SSOrchestratorWorkers.ScientistOperatorWorker do
+defmodule SCOrchestrator.ScientistOperatorWorker do
   use Broadway
   def start_link(_opts) do
     Broadway.start_link(__MODULE__,
