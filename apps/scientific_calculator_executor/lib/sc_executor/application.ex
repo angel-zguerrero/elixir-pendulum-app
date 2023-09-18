@@ -5,11 +5,25 @@ defmodule SCExecutor.Application do
 
   use Application
 
+
+  def heartBeat() do
+    Process.sleep(1000)
+    Phoenix.PubSub.broadcast(ScientificCalculatorPubsub.Service, "worker:registry:listener", [node: node()])
+    heartBeat()
+  end
+
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: SCExecutor.Worker.start_link(arg)
-      # {SCExecutor.Worker, arg}
+      Supervisor.child_spec(
+        {
+          Task,
+          fn ->
+            heartBeat()
+          end
+        },
+        restart: :permanent
+      )
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
