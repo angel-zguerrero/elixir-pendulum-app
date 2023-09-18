@@ -7,6 +7,9 @@ defmodule ScientificCalculatorPubsub.Application do
 
   @impl true
   def start(_type, _args) do
+    if node() == :nonode@nohost do
+      exit("sname is required for start scientific_calculator_pubsub applicacion")
+    end
     redis_host_env = System.get_env("REDIS_HOST")
     redis_port_env = System.get_env("REDIS_PORT")
 
