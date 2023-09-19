@@ -26,9 +26,37 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
     )
   end
 
+  """
+  Message example
+  {
+    "pattern": "scientist-operations-to-solve",
+    "data": {
+      "operation": {
+        "type": "factorial",
+        "value": 30
+      },
+      "status": "pending",
+      "ttl": "2023-09-20T12:23:21.676Z",
+      "_id": "650997ac5a6800bff0e6ef80",
+      "createdAt": "2023-09-19T12:44:28.442Z",
+      "updatedAt": "2023-09-19T12:44:28.442Z",
+      "__v": 0
+    },
+    "id": "dd7364ba72958ebcdedd5"
+  }
+
+  executors_parameters = [ex0@8905041f38c2: {1, 15}, ex1@8905041f38c2: {16, 30}]
+  """
+
   def handle_message(_, message, _) do
-    IO.puts("List active process local and remotes!")
-    IO.inspect(message.data, label: "Got message")
+    macro_message = Jason.decode!(~s(#{message.data}))
+    operation_message = macro_message["data"]
+    operation = operation_message["operation"]
+    executors_parameters = case operation["type"] do
+      "factorial" -> SCOrchestrator.Router.factorial(operation["value"])
+      _ -> raise("Unexpected operation type")
+    end
+    IO.inspect(executors_parameters, label: "Got message")
     message
   end
 end

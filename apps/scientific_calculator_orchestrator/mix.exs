@@ -27,6 +27,7 @@ defmodule SCOrchestrator.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:jason, "~> 1.4"},
       {:broadway_rabbitmq, "~> 0.8.0"},
       {:scientific_calculator_pubsub, in_umbrella: true},
       {:scientific_calculator_executor, in_umbrella: true},

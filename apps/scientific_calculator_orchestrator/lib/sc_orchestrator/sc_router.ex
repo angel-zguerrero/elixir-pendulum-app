@@ -25,7 +25,9 @@ defmodule SCOrchestrator.Router do
     qt_executors =  min(ceil(n / min_interval_by_executor), max_executors)
     interval_size = ceil(n / qt_executors)
     range = 1..n
-    result = Enum.chunk_every(range, interval_size, interval_size)
+    result = range
+    |> Enum.chunk_every(interval_size, interval_size)
+    |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
     {:reply, Enum.zip(executors, result), state}
   end
 end
