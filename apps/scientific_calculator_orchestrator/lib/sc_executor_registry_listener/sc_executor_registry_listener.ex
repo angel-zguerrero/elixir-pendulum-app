@@ -13,7 +13,7 @@ defmodule SCOrchestrator.ExecutorRegistryListener do
   def handle_info(remote_node_info, state) do
     require Logger
     executors_routing_table = Application.fetch_env!(:scientific_calculator_orchestrator, :executors_routing_table)
-    Logger.debug("executors_routing_table : #{inspect(executors_routing_table)}")
+    #Logger.debug("executors_routing_table : #{inspect(executors_routing_table)}")
     time_life = 60
     current_time = DateTime.utc_now()
     ttl = DateTime.add(current_time, time_life, :second)

@@ -27,6 +27,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
   end
 
   def handle_message(_, message, _) do
+    IO.puts("List active process local and remotes!")
     IO.inspect(message.data, label: "Got message")
     message
   end
