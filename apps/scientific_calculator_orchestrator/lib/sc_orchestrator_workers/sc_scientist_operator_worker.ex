@@ -56,6 +56,21 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       "factorial" -> SCOrchestrator.Router.factorial(operation["value"])
       _ -> raise("Unexpected operation type")
     end
+
+    executors_parameters
+    |>Enum.each(
+      fn executor_parameters ->
+        {executor, interval} = executor_parameters
+        [n, m] = Enum.reverse(Tuple.to_list(interval))
+        result = {SCExecutor.TaskRemoteCaller, executor}
+        |>Task.Supervisor.async(OperatorCore, :execute, [OperatorCore.Factorial, %{n: n, m: m}])
+        |>Task.await()
+        IO.inspect("result:")
+        IO.inspect(result)
+    end)
+
+
+
     IO.inspect(executors_parameters, label: "Got message")
     message
   end

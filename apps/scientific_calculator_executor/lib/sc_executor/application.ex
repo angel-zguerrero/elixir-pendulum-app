@@ -23,7 +23,8 @@ defmodule SCExecutor.Application do
           end
         },
         restart: :permanent
-      )
+      ),
+      {Task.Supervisor, name: SCExecutor.TaskRemoteCaller}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
