@@ -27,7 +27,8 @@ defmodule SCExecutor.MixProject do
   defp deps do
     [
       {:scientific_calculator_pubsub, in_umbrella: true},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:decimal, "~> 2.0"}
     ]
   end
 end

@@ -69,6 +69,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       end
 
     operation_result = Jason.encode!(%{
+      pattern: Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved),
       _id: operation_message["_id"],
       status: "success",
       result: merged_result

@@ -10,14 +10,20 @@ defmodule OperatorCore do
   end
 
   def merge(module, operations) do
-    if length(operations) == 1 || length(operations) == 0 do
-      operations
-    else
-      operations
-      |> Enum.reduce(fn element, acc ->
-        module.merge_compare(element, acc)
-      end)
-    end
+    merged_result = if length(operations) == 1 || length(operations) == 0 do
+        hd(operations)
+      else
+        operations
+        |> Enum.reduce(fn element, acc ->
+          module.merge_compare(element, acc)
+        end)
+      end
+
+      result = merged_result.result
+      big_number = result.value
+      result_updated = Map.put(result, :value, "#{big_number}")
+      Map.put(merged_result, :result, result_updated)
   end
+
 
 end
