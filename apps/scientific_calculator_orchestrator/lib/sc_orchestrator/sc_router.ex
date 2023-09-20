@@ -28,6 +28,15 @@ defmodule SCOrchestrator.Router do
     result = range
     |> Enum.chunk_every(interval_size, interval_size)
     |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
-    {:reply, Enum.zip(executors, result), state}
+
+    final_result = executors
+    |> Enum.zip(result)
+    |> Enum.map(fn {executor, interval} ->
+      [n, m] = Enum.reverse(Tuple.to_list(interval))
+      args = %{n: n, m: m}
+      {executor, args, OperatorCore.Factorial}
+    end)
+
+    {:reply, final_result, state}
   end
 end
