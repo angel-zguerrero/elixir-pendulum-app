@@ -21,6 +21,9 @@ defmodule OperatorCore.Factorial do
   def factorial(n, _m) when n < 0 do
     raise("Badformat, the number 'n' must be positive")
   end
+  def factorial(n, _m) when n > 13000 do
+    raise("Badformat, the number 'n' less than 13000")
+  end
   def factorial(_n, m) when m == 0 do
     raise("Badformat, the number 'm' must be greater than 0")
   end
