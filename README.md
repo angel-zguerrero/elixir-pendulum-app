@@ -1,6 +1,6 @@
 # Elixir Pendulum App
 
-Pleasant River microservice (fictional but functional) that solves complex mathematical calculations using the power of the erlang otp. Each mathematical operation calculation is distributed among several nodes within the same cluster, where each of them will solve a part del problema and finally the final result will be stored in rabbitmq.
+Pleasant River microservice (fictional but functional) this distributed application solves complex mathematical calculations using the power of erlang otp. Each mathematical operation calculation is distributed among several nodes within the same cluster, where each of them will solve a part of the problem and finally the result will be stored in Rabbitmq.
 
 The operations coming from the [Node Tyrant Api](https://github.com/angel-zguerrero/node-tyrant-api).
 
