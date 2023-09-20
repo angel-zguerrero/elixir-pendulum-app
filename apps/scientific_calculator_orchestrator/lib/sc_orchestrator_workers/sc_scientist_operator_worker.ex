@@ -1,34 +1,23 @@
 defmodule SCOrchestrator.ScientistOperatorWorker do
-  use Broadway
+  use Rabbit.Broker
 
-  def start_link(_opts) do
-    Broadway.start_link(__MODULE__,
-      name: __MODULE__,
-      producer: [
-        module:
-          {BroadwayRabbitMQ.Producer,
-           queue: "scientist-operations-to-solve",
-           declare: [
-             durable: true
-           ],
-           connection: [
-             port: "5672",
-             username: "admin",
-             password: "admin",
-             host: "pendulum-app-rabbitmq"
-           ]},
-        concurrency: 1
-      ],
-      processors: [
-        default: [
-          concurrency: 10
-        ]
-      ]
-    )
+  def start_link(opts \\ []) do
+    Rabbit.Broker.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  # Callbacks
 
-  @doc """
+  @impl Rabbit.Broker
+  # Perform runtime configuration per component
+  def init(:connection_pool, opts), do: {:ok, opts}
+  def init(:connection, opts), do: {:ok, opts}
+  def init(:topology, opts), do: {:ok, opts}
+  def init(:producer_pool, opts), do: {:ok, opts}
+  def init(:producer, opts), do: {:ok, opts}
+  def init(:consumer_supervisor, opts), do: {:ok, opts}
+  def init(:consumer, opts), do: {:ok, opts}
+
+   @doc """
     Message example
       {
         "pattern": "scientist-operations-to-solve",
@@ -50,8 +39,10 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       executors_parameters = [ex0@8905041f38c2: %{m: 1, n: 15}, ex1@8905041f38c2: %{m: 16, n: 30}]
   """
 
-  def handle_message(_, message, _) do
-    macro_message = Jason.decode!(~s(#{message.data}))
+  @impl Rabbit.Broker
+  def handle_message(message) do
+    # Handle message consumption per consumer
+    macro_message = Jason.decode!(~s(#{message.payload}))
     operation_message = macro_message["data"]
     operation = operation_message["operation"]
 
@@ -69,15 +60,27 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
         |> Task.Supervisor.async(OperatorCore, :execute, [module, args])
     end)
 
-    results = Task.await_many(tasks)
+    remote_results = Task.await_many(tasks)
 
     merged_result =
       case operation["type"] do
-        "factorial" -> OperatorCore.merge(OperatorCore.Factorial, results)
+        "factorial" -> OperatorCore.merge(OperatorCore.Factorial, remote_results)
         _ -> raise("Unexpected operation type")
       end
 
-    IO.inspect(merged_result, label: "Got message 2")
-    message
+    operation_result = Jason.encode!(%{
+      _id: operation_message["_id"],
+      status: "success",
+      result: merged_result
+    })
+    IO.inspect(operation_result, label: "Got message")
+    Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", "scientist-operations-solved", operation_result)
+    {:ack, message}
+  end
+
+  @impl Rabbit.Broker
+  def handle_error(message) do
+    # Handle message errors per consumer
+    {:nack, message}
   end
 end

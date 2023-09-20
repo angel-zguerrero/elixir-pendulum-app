@@ -28,7 +28,7 @@ defmodule SCOrchestrator.MixProject do
   defp deps do
     [
       {:jason, "~> 1.4"},
-      {:broadway_rabbitmq, "~> 0.8.0"},
+      {:rabbit, "~> 0.19"},
       {:scientific_calculator_pubsub, in_umbrella: true},
       {:scientific_calculator_executor, in_umbrella: true},
     ]
