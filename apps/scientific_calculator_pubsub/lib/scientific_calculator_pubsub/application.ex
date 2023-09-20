@@ -10,18 +10,9 @@ defmodule ScientificCalculatorPubsub.Application do
     if node() == :nonode@nohost do
       exit("sname is required for start scientific_calculator_pubsub applicacion")
     end
-    redis_host_env = System.get_env("REDIS_HOST")
-    redis_port_env = System.get_env("REDIS_PORT")
+    redis_host = Application.fetch_env!(:scientific_calculator_pubsub, :redis_host)
+    redis_port = Application.fetch_env!(:scientific_calculator_pubsub, :redis_port)
 
-    redis_host = case redis_host_env do
-      :nil -> "pendulum-app-redis"
-      _ -> redis_host_env
-    end
-
-    redis_port = case redis_port_env do
-      :nil -> 6379
-      _ -> String.to_integer(redis_port_env)
-    end
     children = [
       {Phoenix.PubSub,
        name: ScientificCalculatorPubsub.Service,

@@ -7,27 +7,30 @@ defmodule SCOrchestrator.Application do
 
   @impl true
   def start(_type, _args) do
+    rabbitmq_url = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_url)
+    rabbitmq_scientist_operations_to_solve_queue = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_to_solve_queue)
+    rabbitmq_scientist_operations_solved = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved)
     children = [
       {SCOrchestrator.Router, [strategy: :one_for_rest]},
       {SCOrchestrator.ScientistOperatorWorker,
        [
-         connection: [uri: "amqp://admin:admin@pendulum-app-rabbitmq:5672"],
+         connection: [uri: rabbitmq_url],
          topology: [
            queues: [
-             [name: "scientist-operations-to-solve", durable: true]
+             [name: rabbitmq_scientist_operations_to_solve_queue, durable: true]
            ]
          ],
          producer: [pool_size: 10],
          consumers: [
-           [queue: "scientist-operations-to-solve"]
+           [queue: rabbitmq_scientist_operations_to_solve_queue]
          ]
        ]},
       {SCOrchestrator.ScientistOperatorPublisher,
        [
-         connection: [uri: "amqp://admin:admin@pendulum-app-rabbitmq:5672"],
+         connection: [uri: rabbitmq_url],
          topology: [
            queues: [
-             [name: "scientist-operations-solved", durable: true]
+             [name: rabbitmq_scientist_operations_solved, durable: true]
            ]
          ],
          producer: [pool_size: 10]

@@ -16,3 +16,11 @@ import Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 #
+config :scientific_calculator_orchestrator,
+  rabbitmq_url: System.get_env("RABBITMQ_URL") || "amqp://admin:admin@pendulum-app-rabbitmq:5672",
+  rabbitmq_scientist_operations_to_solve_queue: System.get_env("RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE") || "scientist-operations-to-solve",
+  rabbitmq_scientist_operations_solved: System.get_env("RABBITMQ_SCIENTIST_OPERATIONS_SOLVED") || "scientist-operations-solved"
+
+config :scientific_calculator_pubsub,
+  redis_host: System.get_env("REDIS_HOST") || "pendulum-app-redis",
+  redis_port: System.get_env("REDIS_PORT") || 6379
