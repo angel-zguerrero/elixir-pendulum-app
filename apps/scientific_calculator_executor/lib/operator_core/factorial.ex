@@ -12,7 +12,7 @@ defmodule OperatorCore.Factorial do
 
   @callback merge_compare(operation0 :: OperatorCore.Operation.t(), operation1 :: OperatorCore.Operation.t()) :: OperatorCore.Operation.t()
   def merge_compare(operation0, operation1) do
-    %OperatorCore.Operation{operation_name: "factorial", result:  %{value: operation0.result.value * operation1.result.value}, parameters: %{n: max(operation0.parameters.n, operation1.parameters.n), m: min(operation0.parameters.m, operation1.parameters.m)}, executors: [operation0.executors | operation1.executors ], execution_time: 0}
+    %OperatorCore.Operation{operation_name: "factorial", result:  %{value: operation0.result.value * operation1.result.value}, parameters: %{n: max(operation0.parameters.n, operation1.parameters.n), m: min(operation0.parameters.m, operation1.parameters.m)}, executors: operation0.executors ++ operation1.executors , execution_time: (operation0.execution_time + operation1.execution_time)/2}
   end
 
   def factorial(0, _m) do
