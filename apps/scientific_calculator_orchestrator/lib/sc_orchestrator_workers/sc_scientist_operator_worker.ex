@@ -73,7 +73,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
 
 
     IO.inspect("results: ")
-    IO.inspect(results)
+    IO.inspect(OperatorCore.merge(OperatorCore.Factorial, results))
 
     IO.inspect(executors_parameters, label: "Got message")
     message

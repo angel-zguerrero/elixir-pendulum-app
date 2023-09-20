@@ -6,7 +6,13 @@ defmodule OperatorCore.Factorial do
     pid = self()
     |> :erlang.pid_to_list()
     |> to_string()
-    %OperatorCore.Operation{operation_name: "factorial", result:  %{value: factorial(parameters.n, parameters.m)}, parameters: parameters, executor: "#{node()} - #{pid}", execution_time: 0}
+    IO.inspect("pid #{pid}")
+    %OperatorCore.Operation{operation_name: "factorial", result:  %{value: factorial(parameters.n, parameters.m)}, parameters: parameters, executors: ["#{node()} - #{pid}"], execution_time: 0}
+  end
+
+  @callback merge_compare(operation0 :: OperatorCore.Operation.t(), operation1 :: OperatorCore.Operation.t()) :: OperatorCore.Operation.t()
+  def merge_compare(operation0, operation1) do
+    %OperatorCore.Operation{operation_name: "factorial", result:  %{value: operation0.result.value * operation1.result.value}, parameters: %{n: max(operation0.parameters.n, operation1.parameters.n), m: min(operation0.parameters.m, operation1.parameters.m)}, executors: [operation0.executors | operation1.executors ], execution_time: 0}
   end
 
   def factorial(0, _m) do
