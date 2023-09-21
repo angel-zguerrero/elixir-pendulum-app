@@ -41,42 +41,72 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
 
   @impl Rabbit.Broker
   def handle_message(message) do
-    # Handle message consumption per consumer
+    rabbitmq_scientist_operations_solved = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved)
     macro_message = Jason.decode!(~s(#{message.payload}))
     operation_message = macro_message["data"]
-    operation = operation_message["operation"]
+    try do
+      operation = operation_message["operation"]
+      executors_parameters =
+        case operation["type"] do
+          "factorial" ->
+            case  SCOrchestrator.Router.factorial(operation["value"]) do
+              {:error, reason} -> raise(reason)
+              result -> result
+            end
+          _ -> raise("Unexpected operation type")
+        end
 
-    executors_parameters =
-      case operation["type"] do
-        "factorial" -> SCOrchestrator.Router.factorial(operation["value"])
-        _ -> raise("Unexpected operation type")
-      end
 
+      tasks = executors_parameters
+      |> Enum.map(fn executor_parameters ->
+        {executor, args, module} = executor_parameters
+          {SCExecutor.TaskRemoteCaller, executor}
+          |> Task.Supervisor.async_nolink(OperatorCore, :execute, [module, args])
+      end)
 
-    tasks = executors_parameters
-    |> Enum.map(fn executor_parameters ->
-      {executor, args, module} = executor_parameters
-        {SCExecutor.TaskRemoteCaller, executor}
-        |> Task.Supervisor.async(OperatorCore, :execute, [module, args])
-    end)
+      remote_results = Task.await_many(tasks)
 
-    remote_results = Task.await_many(tasks)
-
-    merged_result =
-      case operation["type"] do
-        "factorial" -> OperatorCore.merge(OperatorCore.Factorial, remote_results)
-        _ -> raise("Unexpected operation type")
-      end
-
-    operation_result = Jason.encode!(%{
-      pattern: Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved),
-      _id: operation_message["_id"],
-      status: "success",
-      result: merged_result
-    })
-    IO.inspect(operation_result, label: "Got message")
-    Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", "scientist-operations-solved", operation_result)
+      merged_result =
+        case operation["type"] do
+          "factorial" -> OperatorCore.merge(OperatorCore.Factorial, remote_results)
+          _ -> raise("Unexpected operation type")
+        end
+      operation_result = Jason.encode!(%{
+        pattern: rabbitmq_scientist_operations_solved,
+        _id: operation_message["_id"],
+        status: "success",
+        result: merged_result
+      })
+      IO.inspect(operation_result, label: "Got message")
+      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result)
+    rescue
+      e in _ ->
+        handle_operation_error(inspect(e.reason), rabbitmq_scientist_operations_solved, operation_message)
+    catch
+      :exit, reason ->
+        handle_operation_error(inspect(reason), rabbitmq_scientist_operations_solved, operation_message)
+    end
     {:ack, message}
+  end
+
+  def handle_operation_error(reason, rabbitmq_scientist_operations_solved, operation_message) do
+    try do
+      operation_result = Jason.encode!(%{
+        pattern: rabbitmq_scientist_operations_solved,
+        _id: operation_message["_id"],
+        status: "failed",
+        failedReason: reason
+      })
+      IO.inspect(operation_result, label: "Got error")
+      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result)
+    rescue
+      e in _ ->
+        IO.inspect(e)
+    catch
+      :exit, reason ->
+        IO.inspect(reason)
+    end
+
   end
 
   @impl Rabbit.Broker

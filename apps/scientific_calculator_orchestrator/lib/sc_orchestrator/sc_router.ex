@@ -12,31 +12,39 @@ defmodule SCOrchestrator.Router do
   end
 
   def handle_call({:factorial, n}, _from, state) do
-    executors_routing_table = Application.fetch_env!(:scientific_calculator_orchestrator, :executors_routing_table)
-    all_executors = Map.keys(executors_routing_table)
-    executors = case length(all_executors)  do
-      size when size == 1 ->
-        all_executors
-      _ -> Enum.filter(all_executors, fn element -> "#{element}" != "#{node()}" end)
+    try do
+      executors_routing_table = Application.fetch_env!(:scientific_calculator_orchestrator, :executors_routing_table)
+      all_executors = Map.keys(executors_routing_table)
+      executors = case length(all_executors)  do
+        size when size == 1 ->
+          all_executors
+        _ -> Enum.filter(all_executors, fn element -> "#{element}" != "#{node()}" end)
+      end
+      |> Enum.sort()
+      max_executors = length(executors)
+      min_interval_by_executor = 10
+      qt_executors =  min(ceil(n / min_interval_by_executor), max_executors)
+      interval_size = ceil(n / qt_executors)
+      range = 1..n
+      result = range
+      |> Enum.chunk_every(interval_size, interval_size)
+      |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
+
+      final_result = executors
+      |> Enum.zip(result)
+      |> Enum.map(fn {executor, interval} ->
+        [n, m] = Enum.reverse(Tuple.to_list(interval))
+        args = %{n: n, m: m}
+        {executor, args, OperatorCore.Factorial}
+      end)
+
+      {:reply, final_result, state}
+    rescue
+      e in _ ->
+      {:reply, {:error, inspect(e.reason)}, state}
+    catch
+      reason ->
+        {:reply, {:error, inspect(reason)}, state}
     end
-    |> Enum.sort()
-    max_executors = length(executors)
-    min_interval_by_executor = 10
-    qt_executors =  min(ceil(n / min_interval_by_executor), max_executors)
-    interval_size = ceil(n / qt_executors)
-    range = 1..n
-    result = range
-    |> Enum.chunk_every(interval_size, interval_size)
-    |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
-
-    final_result = executors
-    |> Enum.zip(result)
-    |> Enum.map(fn {executor, interval} ->
-      [n, m] = Enum.reverse(Tuple.to_list(interval))
-      args = %{n: n, m: m}
-      {executor, args, OperatorCore.Factorial}
-    end)
-
-    {:reply, final_result, state}
   end
 end
