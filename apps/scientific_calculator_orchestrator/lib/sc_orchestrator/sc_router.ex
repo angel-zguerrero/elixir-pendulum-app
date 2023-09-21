@@ -8,7 +8,7 @@ defmodule SCOrchestrator.Router do
   end
 
   def factorial(n) do
-    GenServer.call(__MODULE__, {:factorial, n})
+    GenServer.call(__MODULE__, {:factorial, n}, 20000)
   end
 
   def handle_call({:factorial, n}, _from, state) do
