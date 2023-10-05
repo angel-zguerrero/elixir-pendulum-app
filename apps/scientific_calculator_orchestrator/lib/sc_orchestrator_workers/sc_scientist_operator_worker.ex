@@ -79,14 +79,17 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       })
       IO.inspect(operation_result, label: "Got message")
       Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result)
+      {:ack, message}
     rescue
       e in _ ->
         handle_operation_error(inspect(e.reason), rabbitmq_scientist_operations_solved, operation_message)
+        {:nack, message}
     catch
       :exit, reason ->
         handle_operation_error(inspect(reason), rabbitmq_scientist_operations_solved, operation_message)
+        {:nack, message}
     end
-    {:ack, message}
+
   end
 
   def handle_operation_error(reason, rabbitmq_scientist_operations_solved, operation_message) do
