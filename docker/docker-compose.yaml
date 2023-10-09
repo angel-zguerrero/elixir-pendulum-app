@@ -3,10 +3,12 @@ version: "3"
 volumes:
   pendulum-app-redis:
   pendulum-app-rabbitmq:
-  
+  tyrant-api-redis:
+  neptune-app-adminer:
+  neptune-app-postgres:  
 networks:
-  pleasant-river-net:
-    name: "pleasant-river-net"
+  umbrella-net:
+    name: "umbrella-net"
     external: false
 services:
   pendulum-app-orchestrator:
@@ -17,7 +19,7 @@ services:
     volumes:
       - ../:/pendulum-app-orchestrator
     networks:
-      - pleasant-river-net
+      - umbrella-net
   pendulum-app-executor-0:
     image: azguerrero/elixir-pendulum-app
     hostname: executor0.pendulum.app.com
@@ -26,7 +28,7 @@ services:
     volumes:
       - ../:/pendulum-app-orchestrator
     networks:
-      - pleasant-river-net
+      - umbrella-net
   pendulum-app-executor-1:
     image: azguerrero/elixir-pendulum-app
     hostname: executor1.pendulum.app.com
@@ -35,7 +37,7 @@ services:
     volumes:
       - ../:/pendulum-app-orchestrator
     networks:
-      - pleasant-river-net
+      - umbrella-net
   pendulum-app-redis:
     image: redis
     volumes:
@@ -46,7 +48,7 @@ services:
       - 6380:6379      
     restart: unless-stopped
     networks:
-      - pleasant-river-net
+      - umbrella-net
   pendulum-app-rabbitmq:
     image: azguerrero/rabbitmq-deduplication
     ports:
@@ -59,4 +61,101 @@ services:
       - pendulum-app-rabbitmq:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     networks:
-      - pleasant-river-net
+      - umbrella-net
+  neptune-app-environment:
+    image: azguerrero/phoenix-neptune-app
+    volumes:
+      - ../:/neptune-app-environment
+    environment:
+      PORT: 18323
+      PHX_HOST: localhost
+      TYRANT_API_BASE_URL: http://tyrant-api-environment:17323
+      DATABASE_URL: postgres://postgres:postgres@neptune-app-postgres:5432/neptune_app_dev
+      PHX_SERVER: true
+    expose:
+      - 18323
+    ports:
+      - 18323:18323 
+    networks:
+      - umbrella-net
+  neptune-app-postgres:
+    image: postgres
+    volumes:
+      - neptune-app-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    expose:
+      - 5432
+    ports:
+      - 5432:5432      
+    restart: unless-stopped
+    networks:
+      - umbrella-net
+  neptune-app-adminer:
+    image: adminer
+    volumes:
+      - neptune-app-adminer:/var/lib/postgresql/data
+    environment:
+      ADMINER_DEFAULT_SERVER: neptune-app-postgres
+      ADMINER_DEFAULT_USER: postgres
+      ADMINER_DEFAULT_PASSWORD: postgres
+      ADMINER_DEFAULT_TYPE: postgresql
+    expose:
+      - 8080
+    ports:
+      - 8080:8080      
+    restart: unless-stopped
+    networks:
+      - umbrella-net
+  tyrant-api-environment:
+    image: azguerrero/node-tyrant-api  
+    volumes:
+      - ../:/tyrant-api-environment
+    expose:
+      - 17323
+    ports:
+      - 17323:17323 
+    networks:
+      - umbrella-net
+    environment:
+      - MONGO_RS_URL=mongodb://rs-mongo:27017,rs-mongo:27018,rs-mongo:27019/tyrant?replicaSet=rs
+      - REDIS_PORT=6379
+      - REDIS_HOST=tyrant-api-redis
+      - REDIS_USERNAME=
+      - REDIS_PASSWORD=
+      - RABBITMQ_URL=amqp://admin:admin@pendulum-app-rabbitmq:5672
+      - RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE=scientist-operations-to-solve
+      - RABBITMQ_SCIENTIST_OPERATIONS_SOLVED=scientist-operations-solved
+      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_INTERVAL=20 seconds
+      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_LIMIT=200
+      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_WINDOW=10
+      - SCIENTIST_OPERATIONS_NOTIFICATION_WEBHOOK=http://neptune-app-environment:18323/api/tyrant-api/notification
+      - ENCRYPTION_PASSWORD=123456789
+  tyrant-api-redis:
+    image: redis
+    volumes:
+      - tyrant-api-redis:/data
+    expose:
+      - 6379
+    ports:
+      - 6379:6379      
+    restart: unless-stopped
+    networks:
+      - umbrella-net
+  tyrant-api-mongo:
+    image: azguerrero/mongo-replicaset
+    container_name: rs-mongo
+    expose:
+      - 27017
+      - 27018
+      - 27019
+    ports:
+      - 27017:27017 
+      - 27018:27018 
+      - 27019:27019 
+
+    volumes:
+      - ./db:/data/db
+    networks:
+      - umbrella-net

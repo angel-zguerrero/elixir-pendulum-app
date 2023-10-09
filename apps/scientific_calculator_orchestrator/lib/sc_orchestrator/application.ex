@@ -17,7 +17,7 @@ defmodule SCOrchestrator.Application do
          connection: [uri: rabbitmq_url],
          topology: [
            queues: [
-             [name: rabbitmq_scientist_operations_to_solve_queue, durable: true]
+             [name: rabbitmq_scientist_operations_to_solve_queue, durable: true, arguments: ["x-message-deduplication": true]]
            ]
          ],
          producer: [pool_size: 10],
@@ -30,7 +30,7 @@ defmodule SCOrchestrator.Application do
          connection: [uri: rabbitmq_url],
          topology: [
            queues: [
-             [name: rabbitmq_scientist_operations_solved, durable: true]
+             [name: rabbitmq_scientist_operations_solved, durable: true, arguments: ["x-message-deduplication": true]]
            ]
          ],
          producer: [pool_size: 10]

@@ -78,7 +78,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
         result: merged_result
       })
       IO.inspect(operation_result, label: "Got message")
-      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result)
+      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result, headers: ["x-deduplication-header": operation_message["_id"]], content_type: "application/json", message_id: operation_message["_id"])
       {:ack, message}
     rescue
       e in _ ->
@@ -101,7 +101,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
         failedReason: reason
       })
       IO.inspect(operation_result, label: "Got error")
-      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result)
+      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result, headers: ["x-deduplication-header": operation_message["_id"]], content_type: "application/json", message_id: operation_message["_id"])
     rescue
       e in _ ->
         IO.inspect(e)
