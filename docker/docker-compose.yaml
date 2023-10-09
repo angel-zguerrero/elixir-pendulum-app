@@ -1,0 +1,62 @@
+version: "3"
+
+volumes:
+  pendulum-app-redis:
+  pendulum-app-rabbitmq:
+  
+networks:
+  pleasant-river-net:
+    name: "pleasant-river-net"
+    external: false
+services:
+  pendulum-app-orchestrator:
+    image: azguerrero/elixir-pendulum-app
+    hostname: orchestrator0.pendulum.app.com
+    environment:
+      - APP_TYPE=orchestrator
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - pleasant-river-net
+  pendulum-app-executor-0:
+    image: azguerrero/elixir-pendulum-app
+    hostname: executor0.pendulum.app.com
+    environment:
+      - APP_TYPE=executor
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - pleasant-river-net
+  pendulum-app-executor-1:
+    image: azguerrero/elixir-pendulum-app
+    hostname: executor1.pendulum.app.com
+    environment:
+      - APP_TYPE=executor
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - pleasant-river-net
+  pendulum-app-redis:
+    image: redis
+    volumes:
+      - pendulum-app-redis:/data
+    expose:
+      - 6379
+    ports:
+      - 6380:6379      
+    restart: unless-stopped
+    networks:
+      - pleasant-river-net
+  pendulum-app-rabbitmq:
+    image: azguerrero/rabbitmq-deduplication
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin 
+    volumes:
+      - pendulum-app-rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    networks:
+      - pleasant-river-net
