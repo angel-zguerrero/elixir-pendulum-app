@@ -34,12 +34,6 @@ RUN mix compile --force
 RUN mix release orchestrator --force
 RUN mix release executor --force
 
-
-# MIX_ENV=prod mix local.hex --force
-# MIX_ENV=prod mix local.rebar --force
-# MIX_ENV=prod mix compile --force
-# MIX_ENV=prod mix release orchestrator --force
-
 USER elixir
 
 
@@ -50,11 +44,10 @@ USER elixir
 FROM elixir As production
 
 # Copy the bundled code from the build stage to the production image
-COPY --chown=node:node --from=build /usr/src/app/deps ./deps
-COPY --chown=node:node --from=build /usr/src/app/rel ./rel
-COPY --chown=node:node --from=build /usr/src/app/_build ./_build
+COPY --chown=elixir:elixir --from=build /usr/src/app/deps ./deps
+COPY --chown=elixir:elixir --from=build /usr/src/app/rel ./rel
+COPY --chown=elixir:elixir --from=build /usr/src/app/_build ./_build
 
-#_build/prod/rel/orchestrator/bin/orchestrator start
 
 # Start the server using the production build
 CMD ["sh", "-c", "_build/prod/rel/${APP_TYPE}/bin/${APP_TYPE} start"]
