@@ -22,6 +22,9 @@ defmodule SCOrchestrator.Router do
       end
       |> Enum.sort()
       max_executors = length(executors)
+      if max_executors == 0 do
+        raise "No executors available"
+      end
       min_interval_by_executor = 10
       qt_executors =  min(ceil(n / min_interval_by_executor), max_executors)
       interval_size = ceil(n / qt_executors)

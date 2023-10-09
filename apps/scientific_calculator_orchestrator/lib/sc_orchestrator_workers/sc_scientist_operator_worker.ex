@@ -79,17 +79,16 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       })
       IO.inspect(operation_result, label: "Got message")
       Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result, headers: ["x-deduplication-header": operation_message["_id"]], content_type: "application/json", message_id: operation_message["_id"])
-      {:ack, message}
     rescue
       e in _ ->
         handle_operation_error(inspect(e.reason), rabbitmq_scientist_operations_solved, operation_message)
-        {:nack, message}
     catch
       :exit, reason ->
-        handle_operation_error(inspect(reason), rabbitmq_scientist_operations_solved, operation_message)
-        {:nack, message}
+         handle_operation_error(inspect(reason), rabbitmq_scientist_operations_solved, operation_message)
+        reason ->
+         handle_operation_error(inspect(reason), rabbitmq_scientist_operations_solved, operation_message)
     end
-
+    {:ack, message}
   end
 
   def handle_operation_error(reason, rabbitmq_scientist_operations_solved, operation_message) do
@@ -109,7 +108,6 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       :exit, reason ->
         IO.inspect(reason)
     end
-
   end
 
   @impl Rabbit.Broker
