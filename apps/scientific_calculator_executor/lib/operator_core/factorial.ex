@@ -6,7 +6,6 @@ defmodule OperatorCore.Factorial do
     pid = self()
     |> :erlang.pid_to_list()
     |> to_string()
-    IO.inspect("pid #{pid}")
     %OperatorCore.Operation{operation_name: "factorial", result:  %{value: factorial(parameters.n, parameters.m)}, parameters: parameters, executors: ["#{node()} - #{pid}"], execution_time: 0}
   end
 

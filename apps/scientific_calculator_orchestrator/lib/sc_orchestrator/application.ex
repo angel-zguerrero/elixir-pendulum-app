@@ -11,7 +11,17 @@ defmodule SCOrchestrator.Application do
     rabbitmq_scientist_operations_to_solve_queue = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_to_solve_queue)
     rabbitmq_scientist_operations_solved = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved)
     children = [
-      {SCOrchestrator.Router, [strategy: :one_for_rest]},
+      {SCOrchestrator.Router, [strategy: :one_for_one]},
+      {SCOrchestrator.ScientistOperatorPublisher,
+       [
+         connection: [uri: rabbitmq_url],
+         topology: [
+           queues: [
+             [name: rabbitmq_scientist_operations_solved, durable: true, arguments: ["x-message-deduplication": true]]
+           ]
+         ],
+         producer: [pool_size: 10]
+      ]},
       {SCOrchestrator.ScientistOperatorWorker,
        [
          connection: [uri: rabbitmq_url],
@@ -24,16 +34,6 @@ defmodule SCOrchestrator.Application do
          consumers: [
            [queue: rabbitmq_scientist_operations_to_solve_queue]
          ]
-       ]},
-      {SCOrchestrator.ScientistOperatorPublisher,
-       [
-         connection: [uri: rabbitmq_url],
-         topology: [
-           queues: [
-             [name: rabbitmq_scientist_operations_solved, durable: true, arguments: ["x-message-deduplication": true]]
-           ]
-         ],
-         producer: [pool_size: 10]
        ]},
       {SCOrchestrator.ExecutorRegistryListener, [strategy: :one_for_one]}
     ]

@@ -1,5 +1,6 @@
 defmodule SCOrchestrator.Router do
   use GenServer
+  require Logger
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, [name: __MODULE__])
   end
@@ -21,11 +22,15 @@ defmodule SCOrchestrator.Router do
         _ -> Enum.filter(all_executors, fn element -> "#{element}" != "#{node()}" end)
       end
       |> Enum.sort()
+
       max_executors = length(executors)
       if max_executors == 0 do
         raise "No executors available"
       end
+
+
       min_interval_by_executor = 10
+
       qt_executors =  min(ceil(n / min_interval_by_executor), max_executors)
       interval_size = ceil(n / qt_executors)
       range = 1..n
