@@ -65,7 +65,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
           |> Task.Supervisor.async_nolink(OperatorCore, :execute, [module, args])
       end)
 
-      remote_results = Task.await_many(tasks)
+      remote_results = Task.await_many(tasks, :infinity)
 
       merged_result =
         case operation["type"] do

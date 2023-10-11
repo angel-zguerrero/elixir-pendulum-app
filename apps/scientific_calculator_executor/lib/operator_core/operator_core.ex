@@ -20,7 +20,7 @@ defmodule OperatorCore do
       end
 
       result = merged_result.result
-      big_number = result.value
+      big_number = Decimal.to_string(result.value, :scientific)
       result_updated = Map.put(result, :value, "#{big_number}")
       Map.put(merged_result, :result, result_updated)
   end

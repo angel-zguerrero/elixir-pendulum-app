@@ -42,7 +42,7 @@ defmodule SCOrchestrator.Router do
       |> Enum.zip(result)
       |> Enum.map(fn {executor, interval} ->
         [n, m] = Enum.reverse(Tuple.to_list(interval))
-        args = %{n: n, m: m}
+        args = %{n: Decimal.new(n), m: Decimal.new(m)}
         {executor, args, OperatorCore.Factorial}
       end)
 
