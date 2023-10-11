@@ -32,7 +32,7 @@ defmodule SCOrchestrator.Application do
          ],
          producer: [pool_size: 10],
          consumers: [
-           [queue: rabbitmq_scientist_operations_to_solve_queue, timeout: 600_000, prefetch_count: 3,]
+           [queue: rabbitmq_scientist_operations_to_solve_queue, timeout: 600_000, prefetch_count: 3]
          ]
        ]},
       {SCOrchestrator.ExecutorRegistryListener, [strategy: :one_for_one]}
