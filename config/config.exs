@@ -16,6 +16,10 @@ import Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 #
+
+config :scientific_calculator_executor,
+  limit_factorial: 10_000_000
+
 config :scientific_calculator_orchestrator,
   rabbitmq_url: System.get_env("RABBITMQ_URL") || "amqp://admin:admin@pendulum-app-rabbitmq:5672",
   rabbitmq_scientist_operations_to_solve_queue: System.get_env("RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE") || "scientist-operations-to-solve",

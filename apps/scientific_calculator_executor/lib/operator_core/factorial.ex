@@ -1,6 +1,5 @@
 defmodule OperatorCore.Factorial do
   @behaviour OperatorCore
-  @limit_factorial 10000000
 
   @spec execute(parameters :: Map.t) :: OperatorCore.Operation.t()
   def execute(parameters) do
@@ -16,10 +15,11 @@ defmodule OperatorCore.Factorial do
   end
 
   def factorial(n, m) do
+    limit_factorial = Application.fetch_env!(:scientific_calculator_executor, :limit_factorial)
     cond do
       Decimal.compare(n, Decimal.new(0)) == :eq -> 1
       Decimal.compare(n, Decimal.new(0)) == :lt ->  raise("Badformat, the number 'n' must be positive")
-      Decimal.compare(n, Decimal.new( @limit_factorial)) == :gt -> raise("Badformat, the number 'n' less than #{@limit_factorial}")
+      Decimal.compare(n, Decimal.new( limit_factorial)) == :gt -> raise("Badformat, the number 'n' less than #{limit_factorial}")
       Decimal.compare(m, Decimal.new(0)) == :eq -> raise("Badformat, the number 'm' must be greater than 0")
       Decimal.compare(m, n) == :gt -> raise("Badformat, 'm' must be less than 'n'")
       Decimal.compare(m, n) == :eq -> raise("Badformat, 'm' must be less than 'n'")
