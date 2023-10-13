@@ -9,6 +9,11 @@ defmodule SCOrchestrator.Router do
   end
 
   def factorial(n) do
+    n = if n == 0 do
+      1
+    else
+      n
+    end
     limit_factorial = Application.fetch_env!(:scientific_calculator_executor, :limit_factorial)
     IO.inspect("Router.Factorial n: #{n} limit_factorial: #{limit_factorial}")
     if(n > limit_factorial) do

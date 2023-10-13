@@ -22,7 +22,9 @@ defmodule OperatorCore.Factorial do
       Decimal.compare(n, Decimal.new( limit_factorial)) == :gt -> raise("Badformat, the number 'n' less than #{limit_factorial}")
       Decimal.compare(m, Decimal.new(0)) == :eq -> raise("Badformat, the number 'm' must be greater than 0")
       Decimal.compare(m, n) == :gt -> raise("Badformat, 'm' must be less than 'n'")
-      Decimal.compare(m, n) == :eq -> raise("Badformat, 'm' must be less than 'n'")
+      Decimal.compare(n, Decimal.new(0)) == :eq -> Decimal.new(1)
+      Decimal.compare(n, Decimal.new(1)) == :eq -> Decimal.new(1)
+
       true ->
         n_minus_1 = Decimal.sub(n, Decimal.new(1))
         n_compare_m = Decimal.compare(n_minus_1, m)
