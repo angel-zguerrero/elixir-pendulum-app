@@ -10,7 +10,8 @@ defmodule SCOrchestrator.Router do
 
   def factorial(n) do
     limit_factorial = Application.fetch_env!(:scientific_calculator_executor, :limit_factorial)
-    if(n > Decimal.new(limit_factorial)) do
+    IO.inspect("Router.Factorial n: #{n} limit_factorial: #{limit_factorial}")
+    if(n > limit_factorial) do
       raise("Badformat, the number 'n' less than #{limit_factorial}")
     end
     GenServer.call(__MODULE__, {:factorial, n}, 20000)
