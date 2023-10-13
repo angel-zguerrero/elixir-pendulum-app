@@ -38,6 +38,33 @@ services:
       - ../:/pendulum-app-orchestrator
     networks:
       - umbrella-net
+  pendulum-app-executor-2:
+    image: azguerrero/elixir-pendulum-app
+    hostname: executor2.pendulum.app.com
+    environment:
+      - APP_TYPE=executor
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - umbrella-net
+  pendulum-app-executor-3:
+    image: azguerrero/elixir-pendulum-app
+    hostname: executor3.pendulum.app.com
+    environment:
+      - APP_TYPE=executor
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - umbrella-net
+  pendulum-app-executor-4:
+    image: azguerrero/elixir-pendulum-app
+    hostname: executor4.pendulum.app.com
+    environment:
+      - APP_TYPE=executor
+    volumes:
+      - ../:/pendulum-app-orchestrator
+    networks:
+      - umbrella-net
   pendulum-app-redis:
     image: redis
     volumes:
