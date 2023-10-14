@@ -2,14 +2,12 @@ version: "3"
 
 volumes:
   pendulum-app-redis:
-  pendulum-app-rabbitmq:
-  tyrant-api-redis:
-  neptune-app-adminer:
-  neptune-app-postgres:  
+  pendulum-app-rabbitmq: 
 networks:
   umbrella-net:
     name: "umbrella-net"
     external: false
+name: pendulum-services
 services:
   pendulum-app-orchestrator:
     image: azguerrero/elixir-pendulum-app
@@ -102,124 +100,4 @@ services:
       interval: 5s
       timeout: 15s
       retries: 1
-  neptune-app:
-    image: azguerrero/phoenix-neptune-app
-    restart: on-failure
-    depends_on: 
-      - neptune-app-postgres
-      - tyrant-api
-    volumes:
-      - ../:/neptune-app
-    environment:
-      PORT: 18323
-      PHX_HOST: localhost
-      TYRANT_API_BASE_URL: http://tyrant-api:17323
-      DATABASE_URL: postgres://postgres:postgres@neptune-app-postgres:5432/neptune_app_dev
-      PHX_SERVER: true
-    expose:
-      - 18323
-    ports:
-      - 18323:18323 
-    networks:
-      - umbrella-net
-  neptune-app-postgres:
-    image: postgres
-    volumes:
-      - neptune-app-postgres:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-    expose:
-      - 5432
-    ports:
-      - 5432:5432      
-    restart: unless-stopped
-    networks:
-      - umbrella-net
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5432" ]
-      interval: 5s
-      timeout: 15s
-      retries: 1
-  neptune-app-adminer:
-    image: adminer
-    volumes:
-      - neptune-app-adminer:/var/lib/postgresql/data
-    environment:
-      ADMINER_DEFAULT_SERVER: neptune-app-postgres
-      ADMINER_DEFAULT_USER: postgres
-      ADMINER_DEFAULT_PASSWORD: postgres
-      ADMINER_DEFAULT_TYPE: postgresql
-    expose:
-      - 8080
-    ports:
-      - 8080:8080      
-    restart: unless-stopped
-    networks:
-      - umbrella-net
-  tyrant-api:
-    image: azguerrero/node-tyrant-api  
-    restart: on-failure
-    depends_on: 
-      - tyrant-api-mongo
-    volumes:
-      - ../:/tyrant-api
-    expose:
-      - 17323
-    ports:
-      - 17323:17323 
-    networks:
-      - umbrella-net
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "17323" ]
-      interval: 5s
-      timeout: 15s
-      retries: 1
-    environment:
-      - MONGO_RS_URL=mongodb://rs-tyrant-mongo:27017,rs-tyrant-mongo:27018,rs-tyrant-mongo:27019/tyrant?replicaSet=rs
-      - REDIS_PORT=6379
-      - REDIS_HOST=tyrant-api-redis
-      - REDIS_USERNAME=
-      - REDIS_PASSWORD=
-      - RABBITMQ_URL=amqp://admin:admin@pendulum-app-rabbitmq:5672
-      - RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE=scientist-operations-to-solve
-      - RABBITMQ_SCIENTIST_OPERATIONS_SOLVED=scientist-operations-solved
-      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_INTERVAL=20 seconds
-      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_LIMIT=200
-      - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_WINDOW=10
-      - SCIENTIST_OPERATIONS_NOTIFICATION_WEBHOOK=http://neptune-app:18323/api/tyrant-api/notification
-      - ENCRYPTION_PASSWORD=123456789
-  tyrant-api-redis:
-    image: redis
-    volumes:
-      - tyrant-api-redis:/data
-    expose:
-      - 6379
-    ports:
-      - 6379:6379      
-    restart: unless-stopped
-    networks:
-      - umbrella-net
-  tyrant-api-mongo:
-    image: azguerrero/mongo-replicaset
-    container_name: rs-tyrant-mongo
-    environment:
-      - HOST_NAME=rs-tyrant-mongo
-    expose:
-      - 27017
-      - 27018
-      - 27019
-    ports:
-      - 27017:27017 
-      - 27018:27018 
-      - 27019:27019 
-
-    volumes:
-      - ./db:/data/db
-    networks:
-      - umbrella-net
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "27019" ]
-      interval: 5s
-      timeout: 100s
-      retries: 5
+ 
