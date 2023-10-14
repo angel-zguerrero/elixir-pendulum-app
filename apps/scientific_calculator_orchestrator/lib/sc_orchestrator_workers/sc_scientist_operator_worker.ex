@@ -47,6 +47,13 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
     operation_message = macro_message["data"]
     try do
       operation = operation_message["operation"]
+      operation_result_progress = Jason.encode!(%{
+        pattern: rabbitmq_scientist_operations_solved,
+        _id: operation_message["_id"],
+        status: "processing",
+        progress_increase: 0
+      })
+      Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result_progress, headers: ["x-deduplication-header": "#{operation_message["_id"]}-processing"], message_id: "#{operation_message["_id"]}-processing")
       executors_parameters =
         case operation["type"] do
           "factorial" ->
