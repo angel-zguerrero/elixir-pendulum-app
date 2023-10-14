@@ -13,6 +13,14 @@ networks:
 services:
   pendulum-app-orchestrator:
     image: azguerrero/elixir-pendulum-app
+    restart: on-failure
+    depends_on: 
+      - pendulum-app-rabbitmq
+      - pendulum-app-executor-0
+      - pendulum-app-executor-1
+      - pendulum-app-executor-2
+      - pendulum-app-executor-3
+      - pendulum-app-executor-4
     hostname: orchestrator0.pendulum.app.com
     environment:
       - APP_TYPE=orchestrator
@@ -89,14 +97,23 @@ services:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     networks:
       - umbrella-net
-  neptune-app-environment:
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+  neptune-app:
     image: azguerrero/phoenix-neptune-app
+    restart: on-failure
+    depends_on: 
+      - neptune-app-postgres
+      - tyrant-api
     volumes:
-      - ../:/neptune-app-environment
+      - ../:/neptune-app
     environment:
       PORT: 18323
       PHX_HOST: localhost
-      TYRANT_API_BASE_URL: http://tyrant-api-environment:17323
+      TYRANT_API_BASE_URL: http://tyrant-api:17323
       DATABASE_URL: postgres://postgres:postgres@neptune-app-postgres:5432/neptune_app_dev
       PHX_SERVER: true
     expose:
@@ -119,6 +136,11 @@ services:
     restart: unless-stopped
     networks:
       - umbrella-net
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5432" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
   neptune-app-adminer:
     image: adminer
     volumes:
@@ -135,16 +157,24 @@ services:
     restart: unless-stopped
     networks:
       - umbrella-net
-  tyrant-api-environment:
+  tyrant-api:
     image: azguerrero/node-tyrant-api  
+    restart: on-failure
+    depends_on: 
+      - tyrant-api-mongo
     volumes:
-      - ../:/tyrant-api-environment
+      - ../:/tyrant-api
     expose:
       - 17323
     ports:
       - 17323:17323 
     networks:
       - umbrella-net
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "17323" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
     environment:
       - MONGO_RS_URL=mongodb://rs-tyrant-mongo:27017,rs-tyrant-mongo:27018,rs-tyrant-mongo:27019/tyrant?replicaSet=rs
       - REDIS_PORT=6379
@@ -157,7 +187,7 @@ services:
       - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_INTERVAL=20 seconds
       - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_LIMIT=200
       - STUCK_SCIENTIST_OPERATIONS_AS_FAILED_WINDOW=10
-      - SCIENTIST_OPERATIONS_NOTIFICATION_WEBHOOK=http://neptune-app-environment:18323/api/tyrant-api/notification
+      - SCIENTIST_OPERATIONS_NOTIFICATION_WEBHOOK=http://neptune-app:18323/api/tyrant-api/notification
       - ENCRYPTION_PASSWORD=123456789
   tyrant-api-redis:
     image: redis
@@ -188,3 +218,8 @@ services:
       - ./db:/data/db
     networks:
       - umbrella-net
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "27019" ]
+      interval: 5s
+      timeout: 100s
+      retries: 5
