@@ -65,15 +65,27 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
         end
 
 
+      progress_increase = 100 / length(executors_parameters)
       tasks = executors_parameters
       |> Enum.map(fn executor_parameters ->
         {executor, args, module} = executor_parameters
-          {SCExecutor.TaskRemoteCaller, executor}
-          |> Task.Supervisor.async_nolink(OperatorCore, :execute, [module, args])
+
+          Task.async(fn ->
+             remote_task = {SCExecutor.TaskRemoteCaller, executor}
+             |> Task.Supervisor.async_nolink(OperatorCore, :execute, [module, args])
+             remote_result = Task.await(remote_task, :infinity)
+             operation_result_progress_remote = Jason.encode!(%{
+                pattern: rabbitmq_scientist_operations_solved,
+                _id: operation_message["_id"],
+                status: "processing",
+                progress_increase: progress_increase
+              })
+              Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result_progress_remote)
+              remote_result
+          end)
       end)
 
       remote_results = Task.await_many(tasks, :infinity)
-
       merged_result =
         case operation["type"] do
           "factorial" -> OperatorCore.merge(OperatorCore.Factorial, remote_results)
