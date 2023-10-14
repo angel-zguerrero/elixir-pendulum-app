@@ -146,7 +146,7 @@ services:
     networks:
       - umbrella-net
     environment:
-      - MONGO_RS_URL=mongodb://rs-mongo:27017,rs-mongo:27018,rs-mongo:27019/tyrant?replicaSet=rs
+      - MONGO_RS_URL=mongodb://rs-tyrant-mongo:27017,rs-tyrant-mongo:27018,rs-tyrant-mongo:27019/tyrant?replicaSet=rs
       - REDIS_PORT=6379
       - REDIS_HOST=tyrant-api-redis
       - REDIS_USERNAME=
@@ -172,7 +172,9 @@ services:
       - umbrella-net
   tyrant-api-mongo:
     image: azguerrero/mongo-replicaset
-    container_name: rs-mongo
+    container_name: rs-tyrant-mongo
+    environment:
+      - HOST_NAME=rs-tyrant-mongo
     expose:
       - 27017
       - 27018
