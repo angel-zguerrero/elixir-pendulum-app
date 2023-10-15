@@ -102,3 +102,7 @@ You can run this application and its services using the `compose-file.yaml` dock
 ```bash
 $ docker-compose up --build
 ```
+
+## Author
+
+- [@angel-zguerrero](https://github.com/angel-zguerrero)
