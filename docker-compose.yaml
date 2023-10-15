@@ -10,15 +10,13 @@ networks:
 name: pendulum-services
 services:
   pendulum-app-orchestrator:
-    image: azguerrero/elixir-pendulum-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile 
+    image: elixir-pendulum-app
     restart: on-failure
     depends_on: 
       - pendulum-app-rabbitmq
-      - pendulum-app-executor-0
-      - pendulum-app-executor-1
-      - pendulum-app-executor-2
-      - pendulum-app-executor-3
-      - pendulum-app-executor-4
     hostname: orchestrator0.pendulum.app.com
     environment:
       - APP_TYPE=orchestrator
@@ -27,7 +25,9 @@ services:
     networks:
       - umbrella-net
   pendulum-app-executor-0:
-    image: azguerrero/elixir-pendulum-app
+    image: elixir-pendulum-app
+    depends_on: 
+      - pendulum-app-orchestrator
     hostname: executor0.pendulum.app.com
     environment:
       - APP_TYPE=executor
@@ -36,7 +36,9 @@ services:
     networks:
       - umbrella-net
   pendulum-app-executor-1:
-    image: azguerrero/elixir-pendulum-app
+    image: elixir-pendulum-app
+    depends_on: 
+      - pendulum-app-orchestrator
     hostname: executor1.pendulum.app.com
     environment:
       - APP_TYPE=executor
@@ -45,7 +47,9 @@ services:
     networks:
       - umbrella-net
   pendulum-app-executor-2:
-    image: azguerrero/elixir-pendulum-app
+    image: elixir-pendulum-app
+    depends_on: 
+      - pendulum-app-orchestrator
     hostname: executor2.pendulum.app.com
     environment:
       - APP_TYPE=executor
@@ -54,7 +58,9 @@ services:
     networks:
       - umbrella-net
   pendulum-app-executor-3:
-    image: azguerrero/elixir-pendulum-app
+    image: elixir-pendulum-app
+    depends_on: 
+      - pendulum-app-orchestrator
     hostname: executor3.pendulum.app.com
     environment:
       - APP_TYPE=executor
@@ -63,7 +69,9 @@ services:
     networks:
       - umbrella-net
   pendulum-app-executor-4:
-    image: azguerrero/elixir-pendulum-app
+    image: elixir-pendulum-app
+    depends_on: 
+      - pendulum-app-orchestrator
     hostname: executor4.pendulum.app.com
     environment:
       - APP_TYPE=executor
