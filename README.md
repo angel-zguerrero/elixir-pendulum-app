@@ -7,6 +7,11 @@ The operations coming from the [Node Tyrant Api](https://github.com/angel-zguerr
 Written in Elixir using Rabbitmq as a backend to store the solution of the operations, Redis as communication and discovery layer between the nodes.
 
 
+### See in action
+
+You can see all the ecosystem in action of this this distributed service deploying [Distributed Hive Network](https://github.com/angel-zguerrero/hive-docker/blob/main/distributed-hive-network).
+
+
 ## Installation
 
 ```bash
@@ -86,4 +91,14 @@ The response will be storage into the queue configured in the ENV VAR RABBITMQ_S
   "_id": "650997ac5a6800bff0e6ef80"
 }
 
+```
+
+## Docker
+
+This application can be easily run on Docker. You can use `Dockerfile` to create and push the image to a Docker repository for use in a production environment.
+
+You can run this application and its services using the `compose-file.yaml` docker.
+
+```bash
+$ docker-compose up --build
 ```
