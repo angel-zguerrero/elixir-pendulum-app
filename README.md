@@ -7,18 +7,18 @@ The operations coming from the [Node Tyrant Api](https://github.com/angel-zguerr
 Written in Elixir using Rabbitmq as a backend to store the solution of the operations, Redis as communication and discovery layer between the nodes.
 
 
-## See in action
+## ▶️ See in action
 
 You can see all the ecosystem in action of this this distributed service deploying [Distributed Hive Network](https://github.com/angel-zguerrero/hive-docker/blob/main/distributed-hive-network).
 
 
-## Tech Stack
+## 🛠 Tech Stack
 
 - [Elixir](https://elixir-lang.org)
 - [RabbitMQ](https://www.rabbitmq.com)
 - [Redis](https://redis.io)
 
-## Techniques
+## 👨🏻‍💻 Techniques
 
 - [Publish / Subscribe Pattern (Redis Adapter)](https://hexdocs.pm/phoenix_pubsub_redis/Phoenix.PubSub.Redis.html)
 - [Server-side Service Discovery](https://microservices.io/patterns/server-side-discovery.html)
