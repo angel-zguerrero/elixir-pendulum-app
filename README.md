@@ -22,6 +22,7 @@ You can see all the ecosystem in action of this this distributed service deployi
 
 - [Publish / Subscribe Pattern (Redis Adapter)](https://hexdocs.pm/phoenix_pubsub_redis/Phoenix.PubSub.Redis.html)
 - [Server-side Service Discovery](https://microservices.io/patterns/server-side-discovery.html)
+- [OTP](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html)
 - [Aggregation Pattern](https://www.ibm.com/docs/en/baw/19.x?topic=aggregation-patterns)
 - [Docker Container](https://www.docker.com/resources/what-container)
 
