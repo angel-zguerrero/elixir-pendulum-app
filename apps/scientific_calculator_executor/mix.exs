@@ -18,7 +18,7 @@ defmodule SCExecutor.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :jason],
+      extra_applications: [:logger, :jason, :abacus],
       mod: {SCExecutor.Application, []}
     ]
   end
@@ -28,7 +28,8 @@ defmodule SCExecutor.MixProject do
     [
       {:scientific_calculator_pubsub, in_umbrella: true},
       {:jason, "~> 1.4"},
-      {:decimal, "~> 2.0"}
+      {:decimal, "~> 2.0"},
+      {:abacus, "~> 2.0"}
     ]
   end
 end

@@ -11,6 +11,8 @@ defmodule OperatorCore.Factorial do
 
   @callback merge_compare(operation0 :: OperatorCore.Operation.t(), operation1 :: OperatorCore.Operation.t()) :: OperatorCore.Operation.t()
   def merge_compare(operation0, operation1) do
+    IO.inspect("merge_compare Factorial")
+
     %OperatorCore.Operation{operation_name: "factorial", result:  %{value: Decimal.mult(operation0.result.value, operation1.result.value)}, parameters: %{n: Decimal.max(operation0.parameters.n, operation1.parameters.n), m: Decimal.min(operation0.parameters.m, operation1.parameters.m)}, executors: operation0.executors ++ operation1.executors , execution_time: (operation0.execution_time + operation1.execution_time)/2}
   end
 

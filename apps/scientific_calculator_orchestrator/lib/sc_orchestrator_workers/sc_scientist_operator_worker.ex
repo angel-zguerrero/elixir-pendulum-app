@@ -61,6 +61,11 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
               {:error, reason} -> raise(reason)
               result -> result
             end
+          "integral_trapezoidal" ->
+            case  SCOrchestrator.Router.integral_trapezoidal(operation["value"]["function"], operation["value"]["a"], operation["value"]["b"], operation["value"]["epsilon"]) do
+              {:error, reason} -> raise(reason)
+              result -> result
+            end
           _ -> raise("Unexpected operation type")
         end
 
@@ -89,6 +94,7 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       merged_result =
         case operation["type"] do
           "factorial" -> OperatorCore.merge(OperatorCore.Factorial, remote_results)
+          "integral_trapezoidal" -> OperatorCore.merge(OperatorCore.IntegralTrapezoidal, remote_results)
           _ -> raise("Unexpected operation type")
         end
       operation_result = Jason.encode!(%{
