@@ -15,9 +15,11 @@ defmodule SCOrchestrator.Router do
       n
     end
     limit_factorial = Application.fetch_env!(:scientific_calculator_executor, :limit_factorial)
-    IO.inspect("Router.Factorial n: #{n} limit_factorial: #{limit_factorial}")
     if(n > limit_factorial) do
       raise("Badformat, the number 'n' less than #{limit_factorial}")
+    end
+    if(n < 0) do
+      raise("Badformat, the number 'n' must be greater than 0")
     end
     GenServer.call(__MODULE__, {:factorial, n}, 20000)
   end
@@ -25,6 +27,9 @@ defmodule SCOrchestrator.Router do
   def integral_trapezoidal(function, a, b, epsilon) do
     if(a >= b) do
       raise("Badformat, the 'a' limit must be less than 'b' limit")
+    end
+    if(epsilon <= 0) do
+      raise("Badformat, the 'epsilon'  must be greater than 0")
     end
     GenServer.call(__MODULE__, {:integral_trapezoidal, function, a, b, epsilon}, 20000)
   end
@@ -96,6 +101,7 @@ defmodule SCOrchestrator.Router do
 
   def handle_call({:factorial, n}, _from, state) do
     try do
+      IO.inspect("Router.Factorial n: #{n}")
       {executors, max_executors} = get_executors_information()
 
       min_interval_by_executor = 10
