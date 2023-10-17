@@ -55,27 +55,88 @@ $ iex --sname ex2 -S mix
 
 ### Send operation to resolve
 
+#### Integral trapezoidal request
+
+You can use [Node Tyrant Api](https://github.com/angel-zguerrero/node-tyrant-api) to process a integral trapezoidal operation or you can send a message directly to the queue configured in the ENV VAR RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE (default is "scientist-operations-to-solve") Example:
+
+```javascript
+  {
+    "pattern": "scientist-operations-to-solve",
+    "data": {
+      "operation": {
+        "type": "integral_trapezoidal",
+        "value": {
+          "function": "sin(x)",
+          "a": 0.0,
+          "b": 10.0,
+          "epsilon": 0.01
+        }
+      },
+      "status": "pending",
+      "ttl": "2023-09-20T12:23:21.676Z",
+      "_id": "650997ac5a6800bff0e6ef80",
+      "createdAt": "2023-09-19T12:44:28.442Z",
+      "updatedAt": "2023-09-19T12:44:28.442Z",
+      "__v": 0
+    },
+    "id": "aa7464ba70958efredd5"
+  }
+```
+
+#### Integral trapezoidal response
+
+The response will be storage into the queue configured in the ENV VAR RABBITMQ_SCIENTIST_OPERATIONS_SOLVED (default is "scientist-operations-solved") Example:
+
+```javascript
+
+{
+  "status": "success",
+  "pattern": "scientist-operations-solved",
+  "result": {
+    "execution_time": 218,
+    "executors": [
+      "ex2@8905041f38c2 - <0.514.0>",
+      "ex1@8905041f38c2 - <0.456.0>",
+      "ex0@8905041f38c2 - <0.125.0>"
+    ],
+    "operation_name": "integral_trapezoidal",
+    "parameters": {
+      "function": "sin(x)",
+      "a": "0.0",
+      "b": "10.0",
+      "epsilon": "0.01"
+    },
+    "result": {
+      "value": "1.8390562034548366"
+    }
+  },
+  "_id": "650997ac5a6800bff0e6ef80"
+}
+
+```
+
+
 #### Factorial request
 
 You can use [Node Tyrant Api](https://github.com/angel-zguerrero/node-tyrant-api) to process a factorial operation or you can send a message directly to the queue configured in the ENV VAR RABBITMQ_SCIENTIST_OPERATIONS_TO_SOLVE_QUEUE (default is "scientist-operations-to-solve") Example:
 
 ```javascript
 {
-        "pattern": "scientist-operations-to-solve",
-        "data": {
-          "operation": {
-            "type": "factorial",
-            "value": 30
-          },
-          "status": "pending",
-          "ttl": "2023-09-20T12:23:21.676Z",
-          "_id": "650997ac5a6800bff0e6ef80",
-          "createdAt": "2023-09-19T12:44:28.442Z",
-          "updatedAt": "2023-09-19T12:44:28.442Z",
-          "__v": 0
-        },
-        "id": "dd7364ba72958ebcdedd5"
-      }
+  "pattern": "scientist-operations-to-solve",
+  "data": {
+    "operation": {
+      "type": "factorial",
+      "value": 30
+    },
+    "status": "pending",
+    "ttl": "2023-09-20T12:23:21.676Z",
+    "_id": "650997ac5a6800bff0e6ef80",
+    "createdAt": "2023-09-19T12:44:28.442Z",
+    "updatedAt": "2023-09-19T12:44:28.442Z",
+    "__v": 0
+  },
+  "id": "dd7364ba72958ebcdedd5"
+}
 ```
 
 #### Factorial response

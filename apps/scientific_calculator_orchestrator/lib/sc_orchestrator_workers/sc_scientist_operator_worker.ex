@@ -106,11 +106,17 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result, headers: ["x-deduplication-header": operation_message["_id"]], message_id: operation_message["_id"])
     rescue
       e in _ ->
+        IO.inspect("E1")
+        IO.inspect(e)
         handle_operation_error("#{Exception.message(e)}", rabbitmq_scientist_operations_solved, operation_message)
     catch
       :exit, error ->
+        IO.inspect("E2")
+        IO.inspect(error)
          handle_operation_error("#{inspect(error)}", rabbitmq_scientist_operations_solved, operation_message)
       reason ->
+        IO.inspect("E3")
+        IO.inspect(reason)
          handle_operation_error("#{inspect(reason)}", rabbitmq_scientist_operations_solved, operation_message)
     end
     {:ack, message}
