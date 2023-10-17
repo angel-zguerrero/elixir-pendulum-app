@@ -106,16 +106,16 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
       Rabbit.Broker.publish(SCOrchestrator.ScientistOperatorPublisher, "", rabbitmq_scientist_operations_solved, operation_result, headers: ["x-deduplication-header": operation_message["_id"]], message_id: operation_message["_id"])
     rescue
       e in _ ->
-        IO.inspect("E1")
+        IO.inspect("EEE 1")
         IO.inspect(e)
         handle_operation_error("#{Exception.message(e)}", rabbitmq_scientist_operations_solved, operation_message)
     catch
       :exit, error ->
-        IO.inspect("E2")
+        IO.inspect("EEE 2")
         IO.inspect(error)
          handle_operation_error("#{inspect(error)}", rabbitmq_scientist_operations_solved, operation_message)
       reason ->
-        IO.inspect("E3")
+        IO.inspect("EEE 3")
         IO.inspect(reason)
          handle_operation_error("#{inspect(reason)}", rabbitmq_scientist_operations_solved, operation_message)
     end
@@ -142,7 +142,11 @@ defmodule SCOrchestrator.ScientistOperatorWorker do
 
   @impl Rabbit.Broker
   def handle_error(message) do
-    # Handle message errors per consumer
-    {:nack, message}
+    rabbitmq_scientist_operations_solved = Application.fetch_env!(:scientific_calculator_orchestrator, :rabbitmq_scientist_operations_solved)
+    if Map.has_key?(message, :error_reason) do
+      operation_message = Jason.decode!(Map.fetch!(message, :payload))
+      handle_operation_error("#{inspect(Map.fetch!(message, :error_reason))}", rabbitmq_scientist_operations_solved, operation_message["data"])
+    end
+    {:ack, message}
   end
 end
