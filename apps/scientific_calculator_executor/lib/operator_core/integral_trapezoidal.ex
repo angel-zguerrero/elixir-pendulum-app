@@ -20,14 +20,19 @@ defmodule OperatorCore.IntegralTrapezoidal do
     b = Decimal.to_float(bd)
     epsilon = Decimal.to_float(epsilond)
 
+
     n = round(Float.round((b - a) / epsilon))  # Calculate the number of iterations as an integer
+    IO.inspect("a: #{a}, b: #{b}, epsilon: #{epsilon}, n: #{n}")
     delta_x = (b - a) / n
     result = Enum.reduce(0..(n - 1), 0.0, fn i, acc ->
       x1 = a + i * delta_x
       x2 = a + (i + 1) * delta_x
       (Abacus.eval!(function, %{x: x1}) + Abacus.eval!(function, %{x: x2})) / 2.0 * delta_x + acc
     end)
-    Decimal.new("#{result}")
+    r = Decimal.new("#{result}")
+    IO.inspect("result")
+    IO.inspect(r)
+    r
   end
 
 """

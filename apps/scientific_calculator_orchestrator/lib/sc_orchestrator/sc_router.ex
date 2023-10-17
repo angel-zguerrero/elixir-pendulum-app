@@ -23,7 +23,6 @@ defmodule SCOrchestrator.Router do
   end
 
   def integral_trapezoidal(function, a, b, epsilon) do
-    IO.inspect("Router.Integral_trapezoidal a: #{a} b: #{b}")
     if(a >= b) do
       raise("Badformat, the 'a' limit must be less than 'b' limit")
     end
@@ -50,6 +49,8 @@ defmodule SCOrchestrator.Router do
 
   def handle_call({:integral_trapezoidal,function, a, b, epsilon}, _from, state) do
     try do
+      IO.inspect("Router.Integral_trapezoidal a: #{a} b: #{b} epsilon: #{epsilon}, f(x): #{function}")
+
       {executors, max_executors} = get_executors_information()
 
       min_interval_by_executor = 10
@@ -62,12 +63,19 @@ defmodule SCOrchestrator.Router do
       |> Enum.chunk_every(interval_size + 1, interval_size + 1)
       |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
 
-      [{hh, ht} | tail] = result
+      result = Enum.map(result, fn {ll, rl} ->
+        {ll-1, rl}
+      end)
+
+      [{_hh, ht} | tail] = result
       result = [{a , ht} | tail]
       result = Enum.reverse(result)
-      [{hh, ht} | tail] = result
+      [{hh, _ht} | tail] = result
       result = [{hh , b} | tail]
       result = Enum.reverse(result)
+
+      IO.inspect("Intervals:")
+      IO.inspect(result)
 
       final_result = executors
       |> Enum.zip(result)
