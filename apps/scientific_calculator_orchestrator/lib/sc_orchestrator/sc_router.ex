@@ -57,10 +57,17 @@ defmodule SCOrchestrator.Router do
       qt_executors =  min(ceil(interval / min_interval_by_executor), max_executors)
       interval_size = ceil(interval / qt_executors)
 
-      range = a..b
+      range = round(a)..round(b)
       result = range
       |> Enum.chunk_every(interval_size + 1, interval_size + 1)
       |> Enum.map(&{Enum.at(&1, 0), Enum.at(&1, -1)})
+
+      [{hh, ht} | tail] = result
+      result = [{a , ht} | tail]
+      result = Enum.reverse(result)
+      [{hh, ht} | tail] = result
+      result = [{hh , b} | tail]
+      result = Enum.reverse(result)
 
       final_result = executors
       |> Enum.zip(result)
